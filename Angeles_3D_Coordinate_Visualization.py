@@ -1,15 +1,11 @@
-#!/usr/bin/python3
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import * 
 import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 import numpy as np
-import math as ma
 import sys
 import os
-import ctypes
-
 from pyqtgraph.Qt import QtCore, QtGui
 from pyqtgraph.opengl.GLGraphicsItem import GLGraphicsItem
 
@@ -55,7 +51,7 @@ class MAIN(QtGui.QWidget):
     ## Start Data
         global pts
         three = (3,3)
-        pts = np.empty(three, dtype = np.int32)
+        pts = np.empty(three, dtype = np.float)
 
         def cart2sp(x, y, z):
             """Converts data from cartesian coordinates into spherical.
@@ -180,7 +176,7 @@ class MAIN(QtGui.QWidget):
                     pts[1,0] = R
                     pts[1,1] = Phi
                     pts[1,2] = Zc
-
+        
                     R_int.setValue(R)
                     Phi_int.setValue(Phi)
                     Zc_int.setValue(Zc)
@@ -191,6 +187,10 @@ class MAIN(QtGui.QWidget):
         
                 else:
                     Rho, Theta, PhiS = cart2sp(pts[0,0], pts[0,1], pts[0,2])
+                    
+                    pts[2,0] = Rho
+                    pts[2,1] = Theta
+                    pts[2,2] = PhiS
 
                     Rho_int.setValue(Rho)
                     Theta_int.setValue(Theta)
@@ -208,15 +208,13 @@ class MAIN(QtGui.QWidget):
                 if pts[0,:].size == 0:
                     print("\nCartesian Coordinates are Empty")
                 else:
+                    print(pts[1,0], pts[1,1], pts[1,2])
                     x,y,z = cyl2cart(pts[1,0], pts[1,1], pts[1,2])
-                    
                     X_int.setValue(x)
                     Y_int.setValue(y)
                     Z_int.setValue(z)
 
-
                     self.update()
-              
 
                 if pts[2,:].size ==0:  #If sph array is empty -> Return True
                     print("Spherical Coordinates are Empty")
@@ -229,7 +227,6 @@ class MAIN(QtGui.QWidget):
                     PhiS_int.setValue(Phi)
 
                 self.update()
-
             else:   
                 print('Unsuccessful')
         
@@ -263,8 +260,6 @@ class MAIN(QtGui.QWidget):
                     Zc_int.setValue(z)
 
                     self.update()
-
-
             else:   
                 print('Unsuccessful')
 
@@ -273,6 +268,7 @@ class MAIN(QtGui.QWidget):
       
         #Plot
         plot = gl.GLViewWidget()
+        
         plot.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         plot.opts['distance'] = 40
 
@@ -286,7 +282,7 @@ class MAIN(QtGui.QWidget):
 
         def Xcallback_int(X_int):
             global pts
-            pts[0,0] = (X_int)
+            pts[0,0] = X_int
             return pts[0,0]
 
         X_int.valueChanged[float].connect(Xcallback_int)
@@ -302,12 +298,11 @@ class MAIN(QtGui.QWidget):
 
         def Ycallback_int(Y_int):
             global pts
-            pts[0,1] = (Y_int)
+            pts[0,1] = Y_int
             return pts[0,1]
                     
         Y_int.valueChanged[float].connect(Ycallback_int)
         Y_int.show()
-
 
         Z_int = QtGui.QDoubleSpinBox()
         Z_int.setDecimals(4)
@@ -318,7 +313,7 @@ class MAIN(QtGui.QWidget):
 
         def Zcallback_int(Z_int):
             global pts
-            pts[0,2] = (Z_int)
+            pts[0,2] = Z_int
             return pts[0,2]
             
         Z_int.valueChanged[float].connect(Zcallback_int)
@@ -328,7 +323,6 @@ class MAIN(QtGui.QWidget):
         cart_button = QPushButton("Convert Cartesian", self)
         cart_button.clicked.connect(cart_conversion)
         
-
         #Cylindrical
         R_int = QtGui.QDoubleSpinBox()
         R_int.setDecimals(4)
@@ -339,12 +333,11 @@ class MAIN(QtGui.QWidget):
 
         def R_callback_int(R_int):
             global pts
-            pts[1,0] = (R_int)
+            pts[1,0] = R_int
             return pts[1,0]
 
         R_int.valueChanged[float].connect(R_callback_int)
         R_int.show()
-
 
         Phi_int = QtGui.QDoubleSpinBox()
         Phi_int.setDecimals(4)
@@ -355,7 +348,7 @@ class MAIN(QtGui.QWidget):
 
         def Phi_callback_int(Phi_int):
             global pts
-            pts[1,1] = (Phi_int)
+            pts[1,1] = Phi_int
             return pts[1,1]
 
         Phi_int.valueChanged[float].connect(Phi_callback_int)
@@ -369,10 +362,9 @@ class MAIN(QtGui.QWidget):
         #Zc_int.setValue(pts[1,2])
         Zc_int.setMinimum(-1000000)
 
-
         def Zc_callback_int(Zc_int):
             global pts
-            pts[1,2] = (Zc_int)
+            pts[1,2] = Zc_int
             return pts[1,2]
 
         Zc_int.valueChanged[float].connect(Zc_callback_int)
@@ -392,7 +384,7 @@ class MAIN(QtGui.QWidget):
 
         def Rho_callback_int(Rho_int):
             global pts
-            pts[2,0] = (Rho_int)
+            pts[2,0] = Rho_int
             return pts[2,0]
 
         Rho_int.valueChanged[float].connect(Rho_callback_int)
@@ -408,7 +400,7 @@ class MAIN(QtGui.QWidget):
 
         def Theta_callback_int(Theta_int):
             global pts
-            pts[2,1] = (Theta_int)
+            pts[2,1] = Theta_int
             return pts[2,1]
 
         Theta_int.valueChanged[float].connect(Theta_callback_int)
@@ -423,7 +415,7 @@ class MAIN(QtGui.QWidget):
 
         def PhiS_callback_int(PhiS_int):
             global pts
-            pts[2,2] = (PhiS_int)
+            pts[2,2] = PhiS_int
             return pts[2,2] 
 
         PhiS_int.valueChanged[float].connect(PhiS_callback_int)
@@ -434,18 +426,18 @@ class MAIN(QtGui.QWidget):
 
         def Grids():# Grids
             
-            gx = gl.GLGridItem()
+            gx = gl.GLGridItem(antialias = True)
             gx.rotate(90, 0, 1, 0)
             gx.translate(0, 0, 0)
             gx.setSpacing(x=1,y=1,z=1)
             plot.addItem(gx)
             
-            gy = gl.GLGridItem()
+            gy = gl.GLGridItem(antialias = True)
             gy.rotate(90, 1, 0, 0)
             gy.setSpacing(x=1,y=1,z=1)
             plot.addItem(gy)
             
-            gz = gl.GLGridItem()
+            gz = gl.GLGridItem(antialias = True)
             gz.rotate(0, 0, 0, 0)
             gz.setSpacing(x=1,y=1,z=1)
             plot.addItem(gz)
@@ -486,26 +478,22 @@ class MAIN(QtGui.QWidget):
             # Negative Z
             neg_z.setGLViewWidget(plot)
             plot.addItem(neg_z)
-            plot.setBackgroundColor(96,96,96)
 
             self.update()
             # Calculated Point
             #calc.setGLViewWidget(plot)
             
             #plot.addItem(calc)
-        Grids()
-        
+        plot.setBackgroundColor(120,120, 120, 1)
+
         def plot_point():
             # Coordinate Pts.
             post = np.empty((1, 3))
             post[0] = (pts[0,0],pts[0,1],pts[0,2])
 
  
-            co1 = gl.GLScatterPlotItem(pos=post,color = (255,0,0,1), size = 0.5, pxMode = False)
-            plot.addItem(co1)
-
-
-
+            co0 = gl.GLScatterPlotItem(pos=post,color = (255,0,0,1), size = 0.5, pxMode = False)
+            plot.addItem(co0)
             
         def xyz():
             # Coordinate Pts.
@@ -549,64 +537,68 @@ class MAIN(QtGui.QWidget):
 
             self.update()
 
-
         ## Create a grid layout to manage the widgets size and position
         layout = QtGui.QGridLayout()
         self.setLayout(layout)
+        Me = QLabel('Created by: Michael Angeles')
+        layout.addWidget(Me, 1, 1, 1, 1)
+        Me.setAlignment(QtCore.Qt.AlignTop)
+        Instructor = QLabel('\nInstructed by: Dr. Adam Mehrabani')
+        layout.addWidget(Instructor, 1, 1, 1, 1)
+        Instructor.setAlignment(QtCore.Qt.AlignTop)
 
         ## Cartesian
         XLabel = QLabel('X:')
-        layout.addWidget(XLabel, 1, 0)
+        layout.addWidget(XLabel, 2, 0)
         XLabel.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
 
         YLabel = QLabel('Y:')
-        layout.addWidget(YLabel, 2, 0)
+        layout.addWidget(YLabel, 3, 0)
         YLabel.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
 
         ZLabel = QLabel('Z:')
-        layout.addWidget(ZLabel, 3, 0)
+        layout.addWidget(ZLabel, 4, 0)
         ZLabel.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
 
-        layout.addWidget(cart_button, 4, 1, alignment = QtCore.Qt.AlignRight)
-
+        layout.addWidget(cart_button, 5, 1, 2,1, alignment = QtCore.Qt.AlignTop)
 
         #Cylindirical
         R_Label = QLabel("\u03C1:")
-        layout.addWidget(R_Label, 5, 0)
+        layout.addWidget(R_Label, 6, 0)
         R_Label.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
 
         Phi_Label = QLabel('\u03C6:')
-        layout.addWidget(Phi_Label, 6, 0)
+        layout.addWidget(Phi_Label, 7, 0)
         Phi_Label.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
 
         Zc_Label = QLabel('Z:')
-        layout.addWidget(Zc_Label, 7, 0)
+        layout.addWidget(Zc_Label, 8, 0)
         Zc_Label.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
         
         cyl_button.setCheckable(False)
         cyl_button.toggle()
         
         cyl_button.clicked.connect(cyl_conversion)
-        layout.addWidget(cyl_button, 8, 1, alignment = QtCore.Qt.AlignRight)
+        layout.addWidget(cyl_button, 9, 1, 2, 1, alignment = QtCore.Qt.AlignTop)
 
         #Spherical 
         Rho_Label = QLabel('R:')
-        layout.addWidget(Rho_Label, 9, 0)
+        layout.addWidget(Rho_Label, 10, 0)
         Rho_Label.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
 
         Theta_Label = QLabel('\u03B8:')
-        layout.addWidget(Theta_Label, 10, 0)
+        layout.addWidget(Theta_Label, 11, 0)
         Theta_Label.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
 
         PhiS_Label = QLabel('\u03C6:')
-        layout.addWidget(PhiS_Label, 11, 0)
+        layout.addWidget(PhiS_Label, 12, 0)
         PhiS_Label.setAlignment(QtCore.Qt.AlignVCenter | QtCore.Qt.AlignRight)
         
         sph_button.setCheckable(False)
         sph_button.toggle()
 
         sph_button.clicked.connect(sph_conversion)
-        layout.addWidget(sph_button, 12, 1, 1, 1)
+        layout.addWidget(sph_button, 13, 1, 2, 1, alignment = QtCore.Qt.AlignTop)
 
         plot_button = QPushButton("Plot Point", self)
         plot_button.setCheckable(False)
@@ -617,18 +609,21 @@ class MAIN(QtGui.QWidget):
 
         def VCyl():
             global pts
-            
             n = 50
+
             phi = np.linspace(0,pts[1,1],n)
             for i in range(n):
                 x = np.array(pts[1,0]/2*np.cos(phi))
                 y = np.array(pts[1,0]/2*np.sin(phi))
                 z = np.zeros((0,50))
+
                 pts_c = np.vstack([x,y,z]).transpose()
-                plt = gl.GLLinePlotItem(pos=pts_c, color = (1, 1, 1, 1), width=2)
+                plt = gl.GLLinePlotItem(pos=pts_c, color = (1, 1, 1, 1), width=2, antialias=True)
                 plot.addItem(plt)
 
-            x,y,z = cyl2cart(pts[1,0], pts[1,1], pts[1,2])
+            x = (pts[1,0]*np.cos(pts[1,1]))
+            y = (pts[1,0]*np.sin(pts[1,1]))
+            z = pts[1,2]           
 
             theta_line_data = np.array(([0,0,0],[x,y,z])) 
             theta_line = gl.GLLinePlotItem(pos=theta_line_data, width=(2), antialias=True)
@@ -639,25 +634,64 @@ class MAIN(QtGui.QWidget):
             plot.addItem(plt1)
             
             
-            new2 = np.array(([x/2,y/2,0],[x/2,y/2,z/2])) 
+            new2 = np.array(([x,y,0],[x,y,z])) 
             plt2 = gl.GLLinePlotItem(pos=new2, width=(2), antialias=True)
             plot.addItem(plt2)
-            
 
-            md = gl.MeshData.cylinder(rows=20, cols=20, radius=[pts[1,0], pts[1,0]], length=pts[1,2], offset = False)
+            md = gl.MeshData.cylinder(rows=50, cols=100, radius=[np.sqrt(x**2 +y**2)-0.01, np.sqrt(x**2 +y**2)], length=z, offset = False)
             m5 = gl.GLMeshItem(meshdata=md, color = (0, 0, 0, 0.5), smooth=True, glOptions='translucent')
             plot.addItem(m5)
 
-
+            rho = pts[1,0]
             phi = pts[1,1]
-            # Grid Labels
+            z = pts[1,2]
+
+            ax_vector = (0,0,0)
+            ax0_vector = (np.cos(phi), np.sin(phi), 0)
+
+            y0_vector = (0,0,0)
+            y_vector = (-np.sin(phi), np.cos(phi), 0)
+            
+            z0_vector = (0,0,0)
+            z_vector = (0,0,z)
+
+            Arx = np.array([ax0_vector,ax_vector])
+            Ary = np.array([y0_vector,y_vector])
+            Arz = np.array([z0_vector,z_vector])
+
+            Arho_line = gl.GLLinePlotItem(pos=Arx, color = (1,1,1,1), width=2, antialias=True)
+            Arho_line.translate(rho*np.cos(phi), rho*np.sin(phi), z)
+            plot.addItem(Arho_line)
+
+            Aphi_line = gl.GLLinePlotItem(pos=Ary, color = (1,1,1,1), width=2, antialias=True)
+            Aphi_line.translate(rho*np.cos(phi), rho*np.sin(phi), z)
+            plot.addItem(Aphi_line)
+
+            Az_line = gl.GLLinePlotItem(pos=Arz, color = (1,1,1,1), width=2, antialias=True)
+            Az_line.translate(rho*np.cos(phi), rho*np.sin(phi), z)
+            plot.addItem(Az_line)
+
+            Arho_Grid_Label = GLTextItem(X = np.cos(phi), Y = np.sin(phi), Z = 0, text="a\u0302\u03C1")
+            Arho_Grid_Label.translate(rho*np.cos(phi)+0.05, rho*np.sin(phi)+0.05, z+0.05)
+            Arho_Grid_Label.setGLViewWidget(plot)
+            plot.addItem(Arho_Grid_Label)
+            
+            Aphi_Grid_Label = GLTextItem(X= -np.sin(phi), Y=np.cos(phi), Z=0, text="a\u0302\u03C6")
+            Aphi_Grid_Label.translate(rho*np.cos(phi)+0.05, rho*np.sin(phi)+0.05, z+0.05)
+            Aphi_Grid_Label.setGLViewWidget(plot)
+            plot.addItem(Aphi_Grid_Label)
+          
+            AZc_Grid_Label = GLTextItem(X=0, Y=0, Z=z, text="a\u0302z")
+            AZc_Grid_Label.translate(rho*np.cos(phi)+0.05, rho*np.sin(phi)+0.05, z+0.05)
+            AZc_Grid_Label.setGLViewWidget(plot)
+            plot.addItem(AZc_Grid_Label)
+
             Rho_Grid_Label = GLTextItem(X=(pts[1,0]*np.cos(phi)+0.05), Y=(pts[1,0]*np.sin(phi)+0.05), Z=0, text="\u03C1")
             
             Phi_Grid_Label = GLTextItem(X=(pts[1,0]/2*np.cos(phi/2)+0.05), Y=(pts[1,0]/2*np.sin(phi/2)+0.05), Z=0, text="\u03C6")
 
-            Zc_Grid_Label = GLTextItem(X=x/2+0.05, Y=y/2+0.05, Z=z/4, text="Z")
+            Zc_Grid_Label = GLTextItem(X=x+0.05, Y=y+0.05, Z=z/2, text="Z")
 
-          
             # Positive X
             Rho_Grid_Label.setGLViewWidget(plot)
             plot.addItem(Rho_Grid_Label)
@@ -686,9 +720,9 @@ class MAIN(QtGui.QWidget):
 
             phi_v = (np.linspace(0,pts[2,2],n))
             phi = pts[2,2]
-
+            
             for i in range(n):
-                x = np.array(pts[2,0]/4*np.sin(theta_v)*np.cos(theta))
+                x = np.array(pts[2,0]/4*np.sin(theta_v)*np.cos(phi))
                 y = np.array(pts[2,0]/4*np.sin(theta)*np.sin(phi_v))
                 z = pts[2,0]/4*np.cos(phi_v)
                 
@@ -697,24 +731,23 @@ class MAIN(QtGui.QWidget):
                 z1 = np.zeros((0,200))
 
                 pts_c = np.vstack([x,y,z]).transpose()
-                plt2 = gl.GLLinePlotItem(pos=pts_c, color = (1,1,1,1), width=2)
+                plt2 = gl.GLLinePlotItem(pos=pts_c, color = (1,1,1,1), width=2, antialias=True)
                 plot.addItem(plt2)
 
                 pts_c1 = np.vstack([x1,y1,z1]).transpose()
-                plt20 = gl.GLLinePlotItem(pos=pts_c1, color = (1,1,1,1), width=2)
+                plt20 = gl.GLLinePlotItem(pos=pts_c1, color = (1,1,1,1), width=2, antialias=True)
                 plot.addItem(plt20)
             
             rho_l = pts[2,0]
             theta_l = pts[2,1]
             phi_l = pts[2,2]
 
-            R_Grid_Label = GLTextItem(X=rho_l/2*np.sin(theta_l)*np.cos(phi_l)+0.01, Y=rho_l/2*np.sin(theta_l)*np.sin(phi_l)+0.01, Z=rho_l*np.cos(phi_l)+0.05, text="R")
+            R_Grid_Label = GLTextItem(X=rho_l*np.sin(theta_l-0.1)*np.cos(phi_l), Y = rho_l*np.sin(theta_l)*np.sin(phi_l)-0.1, Z = rho_l*np.cos(phi_l), text="R")
             
-            Theta1_Grid_Label = GLTextItem(X=rho_l/4*np.sin(theta_l)*np.cos(phi_l), Y=rho_l/4*np.sin(theta_l)*np.sin(phi_l), Z=rho_l/4*np.cos(phi_l)+0.1, text="\u03C6")
+            Theta1_Grid_Label = GLTextItem(X=rho_l/4*np.sin(theta_l)*np.cos(phi_l), Y=rho_l/4*np.sin(theta_l)*np.sin(phi_l), Z=rho_l/4*np.cos(phi_l)+0.1, text="\u03B8")
 
-            Phi_Grid_Label = GLTextItem(X=rho_l/4*np.sin(theta_l)*np.cos(phi_l), Y=rho_l/4*np.sin(theta_l)*np.sin(phi_l), Z=0, text="\u03B8")
+            Phi_Grid_Label = GLTextItem(X=rho_l/4*np.sin(theta_l)*np.cos(phi_l/2), Y=rho_l/4*np.sin(theta_l/2)*np.sin(phi_l/2), Z=0, text="\u03C6")
 
-          
             # Positive X
             R_Grid_Label.setGLViewWidget(plot)
             plot.addItem(R_Grid_Label)
@@ -727,23 +760,72 @@ class MAIN(QtGui.QWidget):
             Phi_Grid_Label.setGLViewWidget(plot)
             plot.addItem(Phi_Grid_Label)
                
+            rho_l_AR = rho_l
+            Ar_Grid_Label = GLTextItem(X = np.sin(theta)*np.cos(phi)*(1/2)+0.05,Y = np.sin(theta)*np.sin(phi)*(1/2)+0.05, Z = np.cos(theta)*(1/2)+0.05, text="a\u0302r")
+            
+            APhi_Grid_Label = GLTextItem(X = np.cos(theta)*np.cos(phi)*(1/2)+0.05, Y = np.cos(theta)*np.sin(phi)*(1/2)+0.05,Z = -np.sin(theta)*(1/2)+0.05, text="a\u0302\u03B8")
+
+            ATheta1_Grid_Label = GLTextItem(X = -np.sin(phi)*(1/2) +0.05, Y = np.cos(phi)*(1/2)+0.05, Z = 0+0.05, text="a\u0302\u03C6")
+            Ar_Grid_Label.translate(rho_l_AR*np.sin(theta_l)*np.cos(phi_l),rho_l*np.sin(theta_l)*np.sin(phi_l),rho_l*np.cos(phi_l))
+            APhi_Grid_Label.translate(rho_l_AR*np.sin(theta_l)*np.cos(phi_l),rho_l*np.sin(theta_l)*np.sin(phi_l),rho_l*np.cos(phi_l))
+            ATheta1_Grid_Label.translate(rho_l_AR*np.sin(theta_l)*np.cos(phi_l),rho_l*np.sin(theta_l)*np.sin(phi_l),rho_l*np.cos(phi_l))
+          
+            Ar_Grid_Label.setGLViewWidget(plot)
+            plot.addItem(Ar_Grid_Label)
+            
             x,y,z = sp2cart(pts[2,0], pts[2,1], pts[2,2])
 
+            x0_vector = (0,0,0)
+            x_vector = (rho_l_AR*np.sin(theta_l)*np.cos(phi_l),rho_l*np.sin(theta_l)*np.sin(phi_l),rho_l*np.cos(phi_l))
+            rx = np.array([x0_vector,x_vector])
+            r_line = gl.GLLinePlotItem(pos=rx, color = (1,1,1,1), width=2, antialias=True)
+            plot.addItem(r_line)
 
-           
-            z = pts[2,0]*np.cos(theta)
-            phi_line_data = np.array(([0,0,0],[x,y,z])) 
-            phi_line = gl.GLLinePlotItem(pos=phi_line_data, width=(4), antialias=True)
-            plot.addItem(phi_line)
+            # Coordinate Pts.
+            
+            ax0_vector = (0,0,0)
+            ax_vector = (np.sin(theta)*np.cos(phi)*(1/2),np.sin(theta)*np.sin(phi)*(1/2),np.cos(theta)*(1/2))
 
-            new1 = np.array(([0,0,0],[x,y,0]))
+            y0_vector = (0,0,0)
+            y_vector = (np.cos(theta)*np.cos(phi)*(1/2), np.cos(theta)*np.sin(phi)*(1/2),-np.sin(theta)*(1/2))
+            
+            z0_vector = (0,0,0)
+            z_vector = (-np.sin(phi)*(1/2),np.cos(phi)*(1/2),0)
+
+            Arx = np.array([ax0_vector,ax_vector])
+            Ary = np.array([y0_vector,y_vector])
+            Arz = np.array([z0_vector,z_vector])
+
+
+            Ar_line = gl.GLLinePlotItem(pos=Arx, color = (1,1,1,1), width=2, antialias=True)
+            Ar_line.translate(rho_l_AR*np.sin(theta_l)*np.cos(phi_l),rho_l*np.sin(theta_l)*np.sin(phi_l),rho_l*np.cos(phi_l))
+            plot.addItem(Ar_line)
+
+            Atheta_line = gl.GLLinePlotItem(pos=Ary, color = (1,1,1,1), width=2, antialias=True)
+            Atheta_line.translate(rho_l_AR*np.sin(theta_l)*np.cos(phi_l),rho_l*np.sin(theta_l)*np.sin(phi_l),rho_l*np.cos(phi_l))
+            plot.addItem(Atheta_line)
+
+            Aphi_line = gl.GLLinePlotItem(pos=Arz, color = (1,1,1,1), width=2, antialias=True)
+            Aphi_line.translate(rho_l_AR*np.sin(theta_l)*np.cos(phi_l),rho_l*np.sin(theta_l)*np.sin(phi_l),rho_l*np.cos(phi_l))
+            plot.addItem(Aphi_line)
+
+            # Positive Y
+            ATheta1_Grid_Label.setGLViewWidget(plot)
+            plot.addItem(ATheta1_Grid_Label)
+
+            # Positive Z
+            APhi_Grid_Label.setGLViewWidget(plot)
+            plot.addItem(APhi_Grid_Label)
+
+            x,y,z = sp2cart(pts[2,0], pts[2,1], pts[2,2])
+
+            new1 = np.array(([0,0,0],[pts[0,0],pts[0,1],0]))
             plt1 = gl.GLLinePlotItem(pos=new1, width=(4), antialias=True)
             plot.addItem(plt1)
         
-            
             # sphere
-            md1 = gl.MeshData.sphere(rows=20, cols=20, radius = (np.sqrt(x**2+y**2+z**2)**0.5))
-            m6 = gl.GLMeshItem(meshdata=md1, color = (122,0,0,0.5), edgeColor=(0,0,0,1), smooth=True, drawFaces=False, drawEdges=True)
+            md1 = gl.MeshData.sphere(rows=20, cols=20, radius = pts[2,0])
+            m6 = gl.GLMeshItem(meshdata=md1, color = (120, 120, 120,0.2), edgeColor=(0,0,0,1), smooth=True, drawFaces=False , drawEdges=True)
             plot.addItem(m6)
 
         Vsph_button = QPushButton("Plot Spherical", self)
@@ -759,30 +841,61 @@ class MAIN(QtGui.QWidget):
         pts_clear_button.clicked.connect(super_clear)
         layout.addWidget(pts_clear_button, 14, 1, 1, 1)
 
+        def clear_plot():
+            plot.removeItem(co0)
+            plot.removeItem(co)
+            plot.removeItem(co1)
+            plot.removeItem(co2)
+            plot.removeItem(plt)
+            plot.removeItem(theta_line)
+            plot.removeItem(plt1)
+            plot.removeItem(plt2)
+            plot.removeItem(m5)
+            plot.removeItem(Rho_Grid_Label)
+            plot.removeItem(Phi_Grid_Label)
+            plot.removeItem(Zc_Grid_Label)
+            plot.removeItem(plt2)
+            plot.removeItem(plt20)
+            plot.removeItem(R_Grid_Label)
+            plot.removeItem(Theta1_Grid_Label)
+            plot.removeItem(Phi_Grid_Label)
+            plot.removeItem(Ar_Grid_Label)
+            plot.removeItem(ATheta1_Grid_Label)
+            plot.removeItem(APhi_Grid_Label)
+            plot.removeItem(phi_line)
+            plot.removeItem(plt1)
+            plot.removeItem(m6)
 
         clear_button = QPushButton("Clear Plot", self)
         clear_button.setCheckable(False)
         clear_button.toggle()
-        clear_button.clicked.connect(super_clear)
+        clear_button.clicked.connect(clear_plot)
         layout.addWidget(clear_button, 19, 1, 1, 1)
 
+        grid_button = QPushButton("Show Grid", self)
+        grid_button.setCheckable(False)
+        grid_button.toggle()
+        grid_button.clicked.connect(Grids)
+        layout.addWidget(grid_button, 18, 1, 1, 1)
+        cwd = os.getcwd()
         ## Add widgets to the layout in their proper positions
         Logo = QLabel()
-        Logo.setPixmap(QPixmap("/home/bigmeech/Documents/Personal/EE_307/1/UAH_blk.png").scaled(175,175,QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
+        print(cwd)
+        Logo.setPixmap(QPixmap(cwd +"/UAH_blk.png").scaled(175,175,QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
         Logo.setAlignment(QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
-        layout.addWidget(Logo, 0, 0, 3, 3)
+        layout.addWidget(Logo, 0, 0, 1, 3)
 
-        layout.addWidget(X_int, 1, 1, 1, 1)   # text edit goes in top-left
-        layout.addWidget(Y_int, 2, 1, 1, 1)   # text edit goes in middle-left
-        layout.addWidget(Z_int, 3, 1, 1, 1)   # text edit goes in bottom-left
+        layout.addWidget(X_int, 2, 1, 1, 1)   # text edit goes in top-left
+        layout.addWidget(Y_int, 3, 1, 1, 1)   # text edit goes in middle-left
+        layout.addWidget(Z_int, 4, 1, 1, 1)   # text edit goes in bottom-left
 
-        layout.addWidget(R_int, 5, 1,1,1)   # text edit goes in top-left
-        layout.addWidget(Phi_int, 6, 1, 1, 1)   # text edit goes in middle-left
-        layout.addWidget(Zc_int, 7, 1, 1, 1)   # text edit goes in bottom-left
+        layout.addWidget(R_int, 6, 1,1,1)   # text edit goes in top-left
+        layout.addWidget(Phi_int, 7, 1, 1, 1)   # text edit goes in middle-left
+        layout.addWidget(Zc_int, 8, 1, 1, 1)   # text edit goes in bottom-left
 
-        layout.addWidget(Rho_int, 9, 1, 1, 1)   # text edit goes in top-left
-        layout.addWidget(Theta_int, 10, 1, 1, 1)   # text edit goes in middle-left
-        layout.addWidget(PhiS_int, 11, 1, 1, 1)  # text edit goes in bottom-left
+        layout.addWidget(Rho_int, 10, 1, 1, 1)   # text edit goes in top-left
+        layout.addWidget(Theta_int, 11, 1, 1, 1)   # text edit goes in middle-left
+        layout.addWidget(PhiS_int, 12, 1, 1, 1)  # text edit goes in bottom-left
 
         layout.addWidget(plot, 0, 3, 20, 90)  # plot goes on right side, spanning 3 rows       
 
